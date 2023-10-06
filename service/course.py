@@ -23,9 +23,6 @@ def get_uncompleted_course_components(me: Authorization, ignore_course_ids: Opti
     print(courses)
     now = datetime.now(timezone.utc)
 
-    online_courses = [course for course in courses if course.course_format != 'none' and (
-            ignore_course_ids is None or course.id not in ignore_course_ids)]
-
     online_courses = [course for course in courses]
     print(f"online courses: {online_courses}")
     components = []

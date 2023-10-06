@@ -29,8 +29,6 @@ async def bootstrap():
             _id = os.getenv("SSU_ID")
             password = os.getenv("SSU_PASSWORD")
 
-            ignore_course_ids = list(map(int, os.getenv("IGNORE_COURSE_IDS", "").split(","))) if os.getenv("IGNORE_COURSE_IDS") else []
-
             if not (_id and password):
                 print("📝 로그인 정보를 입력하세요.")
 
@@ -43,7 +41,7 @@ async def bootstrap():
             print(me)
             print("⏳ 강의 정보를 불러오는 중입니다 ...")
 
-            uncompleted_components = get_uncompleted_course_components(me, ignore_course_ids)
+            uncompleted_components = get_uncompleted_course_components(me)
 
             print(f"👀 총 {len(uncompleted_components)}개의 미수강 현재 주차 강의가 있습니다.")
             for lecture in uncompleted_components:
