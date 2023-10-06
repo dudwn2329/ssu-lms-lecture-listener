@@ -1,3 +1,4 @@
+# coding: utf-8
 #전체 설치 명령어
 #pip install -r requirements.txt
 
@@ -10,3 +11,4 @@ tqdm~=4.66.1
 PyAutoGUI~=0.9.54
 python-dotenv~=1.0.0
 playwright~=1.38.0
+
