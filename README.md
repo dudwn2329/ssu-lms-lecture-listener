@@ -1,6 +1,6 @@
-# ssu-lms-autoLecture
+# ssu-lms-lecture-listener
 
-해당 프로젝트는 https://github.com/minuukang/ssu-online-lecture-autoplay 를 참고하여 제작하였습니다.
+해당 프로젝트는 https://github.com/minuukang/ssu-online-lecture-autoplay 를 참고하여 제작하였습니다(README도 참고하시면 좋을 듯).
 
 pip install -r requirements.txt
 
