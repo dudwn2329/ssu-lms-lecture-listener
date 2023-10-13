@@ -8,10 +8,66 @@ from playwright._impl._api_types import Error as PlaywrightError
 from service.auth import authorization, LoginProps
 from service.course import get_uncompleted_course_components
 import pyautogui
+import tkinter as tk
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
+
+
+def on_submit():
+    global playList
+    playList = [lecture for lecture, chk in zip(lectures, checkboxes) if chk.var.get() == 1]
+    print("선택된 강의")
+    printSelected = lambda i: [print(lecture.title) for lecture in i]
+    printSelected(playList)
+    root.destroy()
+
+
+# Tkinter 윈도우 초기화
+root = tk.Tk()
+root.title("재생할 강의 선택")
+
+# 체크박스 및 변수 초기화
+checkboxes = []
+lectures = []
+playList = []
+
+
+async def play(context, component):
+    page = await context.new_page()
+
+    await page.goto(component.viewer_url, wait_until="domcontentloaded")
+    await page.click('.vc-front-screen-play-btn', timeout=60000)
+
+    # 음소거
+    try:
+        await page.wait_for_selector('.vc-pctrl-volume-btn', timeout=7000)
+        await page.click('.vc-pctrl-volume-btn')
+
+    except PlaywrightError:
+        print("mute button did not appear, continuing without clicking...")
+
+    # 이어보기 확인용
+    try:
+        await page.wait_for_selector('.confirm-ok-btn', timeout=7000)
+        await page.click('.confirm-ok-btn')
+    except PlaywrightError:
+        print("Confirm button did not appear, continuing without clicking...")
+
+    # 진도체크 확인용
+    try:
+        await page.wait_for_selector('.confirm-ok-btn', timeout=7000)
+        await page.click('.confirm-ok-btn')
+
+    except PlaywrightError:
+        print("Confirm button did not appear, continuing without clicking...")
+
+    duration = component.item_content_data['duration'] - component.attendance_data['progress']
+    await asyncio.sleep(duration)  # use asyncio.sleep for async function
+    await page.close()
+    await asyncio.sleep(1)
+
 
 async def bootstrap():
     print("🚀 온라인 강의 자동 이어듣기 시작!\n")
@@ -42,51 +98,28 @@ async def bootstrap():
             print("⏳ 강의 정보를 불러오는 중입니다 ...")
 
             uncompleted_components = get_uncompleted_course_components(me)
-
+            global lectures, checkboxes
             print(f"👀 총 {len(uncompleted_components)}개의 미수강 현재 주차 강의가 있습니다.")
             for lecture in uncompleted_components:
                 print(lecture.title)
+                checkVar = tk.IntVar()
+                chk = tk.Checkbutton(root, text=lecture.title, variable=checkVar)
+                chk.var = checkVar
+                chk.pack(anchor="w")
+                checkboxes.append(chk)
+                lectures.append(lecture)
+            # 제출 버튼
+            submit_button = tk.Button(root, text="Submit", command=on_submit)
+            submit_button.pack()
 
-            if uncompleted_components:
+            root.mainloop()
+
+            if playList:
                 print("\n")
 
-                for component in uncompleted_components:
+                for component in playList:
                     print(f'[{component.title}] 재생')
-                    if 'ENG' in component.title or '中文' in component.title:
-                        print("스킵")
-                        continue
-                    page = await context.new_page()
-
-                    await page.goto(component.viewer_url, wait_until="domcontentloaded")
-                    await page.click('.vc-front-screen-play-btn', timeout=60000)
-
-                    # 음소거
-                    try:
-                        await page.wait_for_selector('.vc-pctrl-volume-btn', timeout=7000)
-                        await page.click('.vc-pctrl-volume-btn')
-
-                    except PlaywrightError:
-                        print("mute button did not appear, continuing without clicking...")
-
-                    # 이어보기 확인용
-                    try:
-                        await page.wait_for_selector('.confirm-ok-btn', timeout=7000)
-                        await page.click('.confirm-ok-btn')
-                    except PlaywrightError:
-                        print("Confirm button did not appear, continuing without clicking...")
-
-                    # 진도체크 확인용
-                    try:
-                        await page.wait_for_selector('.confirm-ok-btn', timeout=7000)
-                        await page.click('.confirm-ok-btn')
-
-                    except PlaywrightError:
-                        print("Confirm button did not appear, continuing without clicking...")
-
-                    duration = component.item_content_data['duration'] - component.attendance_data['progress']
-                    await asyncio.sleep(duration)  # use asyncio.sleep for async function
-                    await page.close()
-                    await asyncio.sleep(1)
+                    await play(context, component)
 
             print("\n✋ 다음에 또 봐요!")
 
