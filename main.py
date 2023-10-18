@@ -27,6 +27,7 @@ def on_submit():
 # Tkinter 윈도우 초기화
 root = tk.Tk()
 root.title("재생할 강의 선택")
+root.wm_attributes("-topmost", 1)
 
 # 체크박스 및 변수 초기화
 checkboxes = []
@@ -111,15 +112,17 @@ async def bootstrap():
             # 제출 버튼
             submit_button = tk.Button(root, text="Submit", command=on_submit)
             submit_button.pack()
-
+            root.update()
+            root.deiconify()
+            root.lift()
             root.mainloop()
-
             if playList:
                 print("\n")
 
                 for component in playList:
                     print(f'[{component.title}] 재생')
                     await play(context, component)
+                    print(f'[{component.title}] 종료')
 
             print("\n✋ 다음에 또 봐요!")
 
