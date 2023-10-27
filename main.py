@@ -28,6 +28,7 @@ def on_submit():
 root = tk.Tk()
 root.title("재생할 강의 선택")
 root.wm_attributes("-topmost", 1)
+root.iconify()
 
 # 체크박스 및 변수 초기화
 checkboxes = []
