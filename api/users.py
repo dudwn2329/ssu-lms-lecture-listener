@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import Union
-from api.base import api, ApiResponse
+from base import api, ApiResponse
 
 
 @dataclass
 class Course:
-    course_format: Union['online', 'offline', 'none']
+    course_format: Union['online', 'offline', 'blended', 'on_campus', 'none',]
     id: int
     term_id: int
     name: str

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Optional
-from api.base import api
+from base import api
 
 
 @dataclass
@@ -112,6 +112,48 @@ class AttendanceItem:
     attendance_data: AttendanceData
 
 
+@dataclass
+class Activities:
+    total_unread_announcements: int
+    total_announcements: int
+    total_unread_resources: int
+    total_resources: int
+    total_incompleted_video_conferences: int
+    total_incompleted_metaverse_conferences: int
+    total_incompleted_commons_resources: int
+    total_incompleted_smart_attendances: int
+    total_incompleted_movies: int
+    total_unsubmitted_assignments: int
+    total_unsubmitted_quizzes: int
+    total_unsubmitted_discussion_topics: int
+
+
+@dataclass
+class TodoItem:
+    section_id: int
+    unit_id: int
+    component_id: int
+    generated_from_lecture_content: bool
+    component_type: str
+    title: str
+    due_date: str
+    commons_type: str
+
+
+@dataclass
+class Todo:
+    course_id: int
+    activities: Activities
+    todo_list: Optional[List[TodoItem]]
+
+
+@dataclass
+class Todos:
+    to_dos: List[Todo]
+    total_unread_messages: int
+    total_count: int
+
+
 def modules(courseId: int, token: str):
     try:
         return api(f"/courses/{courseId}/modules", response_class=Module, token=token)
@@ -122,5 +164,12 @@ def modules(courseId: int, token: str):
 def attendanceItems(courseId: str, itemId: str, token: str):
     try:
         return api(f"/courses/{courseId}/attendance_items/{itemId}", token, response_class=AttendanceItem)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+def to_dos(termId: int, token: str):
+    try:
+        return api(f"/learn_activities/to_dos?term_ids[]={termId}", token, response_class=Todos)
     except Exception as e:
         print(f"An error occurred: {e}")
