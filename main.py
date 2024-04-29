@@ -42,30 +42,41 @@ async def play(context, component):
     await page.goto(component.viewer_url, wait_until="domcontentloaded")
     await page.click('.vc-front-screen-play-btn', timeout=60000)
 
-    # 음소거
-    try:
-        await page.wait_for_selector('.vc-pctrl-volume-btn', timeout=7000)
-        await page.click('.vc-pctrl-volume-btn')
+    async def mute():
+        try:
+            await page.wait_for_selector('.vc-pctrl-volume-btn', timeout=7000)
+            await page.click('.vc-pctrl-volume-btn')
+            print("Mute button clicked successfully")
+        except PlaywrightError:
+            print("Mute button did not appear, continuing without clicking...")
 
-    except PlaywrightError:
-        print("mute button did not appear, continuing without clicking...")
+    async def confirm_actions():
+        try:
+            await page.wait_for_selector('.confirm-ok-btn', timeout=7000)
+            await page.click('.confirm-ok-btn')
+            print("Confirm button clicked successfully")
+        except PlaywrightError:
+            print("Confirm button did not appear, continuing without clicking...")
 
-    # 이어보기 확인용
-    try:
-        await page.wait_for_selector('.confirm-ok-btn', timeout=7000)
-        await page.click('.confirm-ok-btn')
-    except PlaywrightError:
-        print("Confirm button did not appear, continuing without clicking...")
+    async def change_playback_rate():
+        try:
+            await page.wait_for_selector('.vc-pctrl-playback-rate-toggle-btn', timeout=10000)
+            await page.click('.vc-pctrl-playback-rate-toggle-btn')
+            await page.wait_for_selector('#vc-pctrl-playback-rate-15', timeout=10000)
+            await page.click('#vc-pctrl-playback-rate-15')
+            print("Playback rate changed successfully")
+        except PlaywrightError:
+            print("Playback rate button did not appear, continuing without clicking...")
 
-    # 진도체크 확인용
-    try:
-        await page.wait_for_selector('.confirm-ok-btn', timeout=7000)
-        await page.click('.confirm-ok-btn')
-
-    except PlaywrightError:
-        print("Confirm button did not appear, continuing without clicking...")
+    # 비동기로 실행되도록 수정
+    await asyncio.gather(
+        mute(),
+        confirm_actions(),
+        change_playback_rate()
+    )
 
     duration = component.item_content_data['duration'] - component.attendance_data['progress']
+    duration *= 0.67
     await asyncio.sleep(duration)  # use asyncio.sleep for async function
     await page.close()
     await asyncio.sleep(1)
