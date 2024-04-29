@@ -92,6 +92,7 @@ class AttendanceItem:
     course_id: int
     original_item_id: int
     use_attendance: bool
+    omit_progress: bool
     item_content_type: str
     item_content_id: str
     week_position: int
