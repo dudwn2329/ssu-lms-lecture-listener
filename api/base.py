@@ -22,7 +22,7 @@ def api(url: str, token: str, init: dict = {}, response_class: Type[T] = None) -
     headers = init.get('headers', {})
     headers['Authorization'] = f"Bearer {token}"
     init['headers'] = headers
-
+    print(url)
     response = requests.request(init.get('method', 'GET'), f"{baseApiUrl}{url}", headers=headers,
                                 data=init.get('body', None))
 
@@ -34,6 +34,9 @@ def api(url: str, token: str, init: dict = {}, response_class: Type[T] = None) -
                 result = [response_class(**item) for item in result]
             else:
                 result = response_class(**result)
+            print("---------------------------------")
+            print(result)
+            print("---------------------------------")
         # logging.info(f"fetch: url={url}, token={token}, result={result}, setCookie={response.cookies}")
         return ApiResponse(True, result, response.status_code)
     else:
