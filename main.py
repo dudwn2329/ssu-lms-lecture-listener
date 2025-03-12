@@ -8,6 +8,9 @@ from service.auth import authorization, LoginProps
 from service.course import get_uncompleted_course_components
 import pyautogui
 import tkinter as tk
+import sys
+
+sys.stdout.reconfigure(encoding='utf-8')
 
 load_dotenv()
 
