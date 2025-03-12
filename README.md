@@ -6,6 +6,7 @@ git clone https://github.com/dudwn2329/ssu-lms-lecture-listener.git
 cd ssu-lms-lecture-listener   
 pip install -r requirements.txt
 playwright install
+python main.py
 ```
 
 아이디/비밀번호 입력이 귀찮으면 .env_example -> .env로 바꾸고 변수 값 수정하기
