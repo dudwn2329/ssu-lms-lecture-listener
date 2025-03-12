@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Union
-from base import api, ApiResponse
+from api.base import api, ApiResponse
 
 
 @dataclass

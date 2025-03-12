@@ -2,10 +2,10 @@ import traceback
 from datetime import datetime, timezone
 from typing import List, Optional, Any
 
-from auth import Authorization  # Assuming Authorization class is imported from auth.py
-from accounts import terms, Term
-from users import learnActivities, Course
-from courses import *
+from service.auth import Authorization
+from api.accounts import terms, Term
+from api.users import learnActivities, Course
+from api.courses import *
 
 
 def get_uncompleted_course_components(me: Authorization, ignore_course_ids: Optional[List[int]] = None) -> List[Any]:
@@ -56,13 +56,18 @@ def get_uncompleted_course_components(me: Authorization, ignore_course_ids: Opti
     now = datetime.now(timezone.utc)
     try:
         for comp in todo_list:
-            attendance = attendanceItems(comp['course_id'], comp['component_id'], me.token).result
-            print(attendance)
-            if attendance.unlock_at is not None and attendance.due_at is not None:
-                if datetime.fromisoformat(attendance.unlock_at.replace("Z", "")).replace(
-                        tzinfo=timezone.utc) < now < datetime.fromisoformat(attendance.due_at.replace("Z", "")).replace(
-                        tzinfo=timezone.utc):
-                    active_components.append(attendance)
+            if comp:
+                attendance = attendanceItems(comp['course_id'], comp['component_id'], me.token).result
+                print(attendance)
+                try:
+                    if attendance.unlock_at is not None and attendance.due_at is not None:
+                        if datetime.fromisoformat(attendance.unlock_at.replace("Z", "")).replace(
+                                tzinfo=timezone.utc) < now < datetime.fromisoformat(attendance.due_at.replace("Z", "")).replace(
+                                tzinfo=timezone.utc):
+                            active_components.append(attendance)
+                except AttributeError as e:
+                    print(e)
+                    continue
 
     except Exception as e:
         traceback.print_exc()

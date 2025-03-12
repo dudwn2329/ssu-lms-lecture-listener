@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Optional
-from base import api
+from api.base import api
 
 
 @dataclass
@@ -111,6 +111,7 @@ class AttendanceItem:
     opened: bool
     viewer_url: str
     attendance_data: AttendanceData
+    use_week_and_lesson: str
 
 
 @dataclass

@@ -4,7 +4,6 @@ import os
 
 from dotenv import load_dotenv
 from playwright.async_api import async_playwright
-from playwright._impl._api_types import Error as PlaywrightError
 from service.auth import authorization, LoginProps
 from service.course import get_uncompleted_course_components
 import pyautogui
@@ -38,7 +37,9 @@ playList = []
 
 async def play(context, component):
     page = await context.new_page()
-
+    if not component.viewer_url:
+        print("강의 url이 없습니다. skip")
+        return
     await page.goto(component.viewer_url, wait_until="domcontentloaded")
     await page.click('.vc-front-screen-play-btn', timeout=60000)
 
@@ -47,7 +48,7 @@ async def play(context, component):
             await page.wait_for_selector('.vc-pctrl-volume-btn', timeout=7000)
             await page.click('.vc-pctrl-volume-btn')
             print("Mute button clicked successfully")
-        except PlaywrightError:
+        except Exception:
             print("Mute button did not appear, continuing without clicking...")
 
     async def confirm_actions():
@@ -55,7 +56,7 @@ async def play(context, component):
             await page.wait_for_selector('.confirm-ok-btn', timeout=7000)
             await page.click('.confirm-ok-btn')
             print("Confirm button clicked successfully")
-        except PlaywrightError:
+        except Exception:
             print("Confirm button did not appear, continuing without clicking...")
 
     async def change_playback_rate():
@@ -65,7 +66,7 @@ async def play(context, component):
             await page.wait_for_selector('#vc-pctrl-playback-rate-15', timeout=10000)
             await page.click('#vc-pctrl-playback-rate-15')
             print("Playback rate changed successfully")
-        except PlaywrightError:
+        except Exception:
             print("Playback rate button did not appear, continuing without clicking...")
 
     # 비동기로 실행되도록 수정
@@ -77,7 +78,11 @@ async def play(context, component):
 
     duration = component.item_content_data['duration'] - component.attendance_data['progress']
     duration *= 0.67
-    await asyncio.sleep(duration)  # use asyncio.sleep for async function
+    await asyncio.gather(
+        asyncio.sleep(duration),
+        confirm_actions()
+    )
+
     await page.close()
     await asyncio.sleep(1)
 
